@@ -28,20 +28,33 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.web = new System.Windows.Forms.WebBrowser();
             this.SuspendLayout();
+            // 
+            // web
+            // 
+            this.web.Location = new System.Drawing.Point(12, 3);
+            this.web.MinimumSize = new System.Drawing.Size(20, 20);
+            this.web.Name = "web";
+            this.web.Size = new System.Drawing.Size(983, 648);
+            this.web.TabIndex = 0;
             // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(703, 488);
+            this.ClientSize = new System.Drawing.Size(1007, 663);
+            this.Controls.Add(this.web);
             this.Name = "FrmMain";
             this.Text = "All for Wakfu";
+            this.Load += new System.EventHandler(this.FrmMain_Load);
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
+        private System.Windows.Forms.WebBrowser web;
     }
 }
 
