@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace All_for_Wakfu
 {
@@ -60,6 +61,8 @@ namespace All_for_Wakfu
 
             if (BrowserDocumentText != "")
             {
+                List<Item> listItem = new List<Item>();
+
                 var tableItems = Browser.Document.GetElementsByTagName("table");
 
                 foreach (HtmlElement table in tableItems)
@@ -67,14 +70,56 @@ namespace All_for_Wakfu
                     if (table.GetAttribute("className") == "ak-table ak-responsivetable")
                     {
                         // <table> who contains all items
-                        var trItems = table.Document.GetElementsByTagName("tr");
+                        var trItems = table.GetElementsByTagName("tr");
 
                         foreach (HtmlElement tr in trItems)
                         {
                             if (tr.GetAttribute("className") == "ak-bg-odd" || tr.GetAttribute("className") == "ak-bg-even")
                             {
                                 // <tr> who contains stats from an item
-                                Console.Write("noice");
+                                int idItem = -1;
+                                string nameItem = "";
+                                Image imgItem = null;
+                                string typeItem = "";
+                                int rarityItem = -1;
+                                int lvlItem = -1;
+                                string urlItem = "";
+                                Dictionary<string, int> statsItem = new Dictionary<string, int>();
+
+                                Dictionary<string, HtmlElement> ItemTagsData = new Dictionary<string, HtmlElement>();
+                                
+                                var spanTags = tr.GetElementsByTagName("span");
+                                var tdTags = tr.GetElementsByTagName("td");
+                                
+                                foreach (HtmlElement span in spanTags)
+                                {
+                                    try
+                                    {
+                                        if (span.FirstChild.FirstChild.GetAttribute("alt") != "" && span.FirstChild.FirstChild != null)
+                                        {
+
+                                            ItemTagsData.Add("url_img_name", span.FirstChild); // item url, image, name
+                                        }
+                                    }
+                                    catch (Exception)
+                                    {
+                                        // span don't have two child
+                                    }
+
+                                    if (span.GetAttribute("title") != "")
+                                    {
+                                        ItemTagsData.Add("rarity", span);
+                                    }
+                                }
+
+                                foreach (HtmlElement td in tdTags)
+                                {
+                                    if (td.GetAttribute("className") == "item-type")
+                                    {
+                                        ItemTagsData.Add("type_item", td);
+                                    }
+                                }
+    
                             }
                         }
                     }
