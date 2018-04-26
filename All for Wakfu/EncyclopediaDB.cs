@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.Net;
 using System.IO;
+using System.Drawing.Imaging;
 
 namespace All_for_Wakfu
 {
@@ -22,9 +23,9 @@ namespace All_for_Wakfu
         private SqlConnection _dbConnection;
         #region url
         private const string ARMORS_URL = "https://www.wakfu.com/fr/mmorpg/encyclopedie/armures?page=";
-        private const string ACCESSORIES_URL = "https://www.wakfu.com/fr/mmorpg/encyclopedie/accessoires";
-        private const string PETS_URL = "https://www.wakfu.com/fr/mmorpg/encyclopedie/familiers";
-        private const string MOUNTS_URL = "https://www.wakfu.com/fr/mmorpg/encyclopedie/montures";
+        private const string ACCESSORIES_URL = "https://www.wakfu.com/fr/mmorpg/encyclopedie/accessoires?page=";
+        private const string PETS_URL = "https://www.wakfu.com/fr/mmorpg/encyclopedie/familiers?page=";
+        private const string MOUNTS_URL = "https://www.wakfu.com/fr/mmorpg/encyclopedie/montures?page=";
         #endregion url
         #region className
         private const string TABLE_DATA_CLASS_NAME = "ak-table ak-responsivetable";
@@ -42,7 +43,7 @@ namespace All_for_Wakfu
         private string _browserDocumentText;
         private int _pageActual = 1;
         private List<Item> _listItem;
-        private bool HasToNavigate = false;
+        private Dictionary<int, string> _typeItemsDictionnary;
         
         public EncyclopediaDB()
         {
@@ -55,18 +56,23 @@ namespace All_for_Wakfu
         private string BrowserDocumentText { get => _browserDocumentText; set => _browserDocumentText = value; }
         private int PageActual { get => _pageActual; set => _pageActual = value; }
         private List<Item> ListItem { get => _listItem; set => _listItem = value; }
+        public Dictionary<int, string> TypeItemsDictionnary { get => _typeItemsDictionnary; set => _typeItemsDictionnary = value; }
 
         private void OpenConnection()
         {
-            DbConnection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\\AllForWakfuDB.mdf;Integrated Security=True"); // TODO : Verify this later
+            string pathToDatabase = "C:\\Users\\GENGAD_INFO\\Desktop\\Informatique 2017-2018\\Atelier Application\\All for Wakfu\\All for Wakfu\\All for Wakfu\\AllForWakfuDB.mdf";
+            DbConnection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=" + pathToDatabase + ";Integrated Security=True") ; // TODO : change it later
             DbConnection.Open();
         }
 
         public void UpdateDB()
         {
+            CreateTypeItemsDictionnary();
             CreateNewBrowser();
         }
 
+
+        #region WebBrowser Methods
         /// <summary>
         /// Delete the Browser existant and create a new Browser (necessary for the redirection)
         /// </summary>
@@ -204,9 +210,92 @@ namespace All_for_Wakfu
                 }
                 PageActual++;
                 e.Cancel = true;
-                CreateNewBrowser();
+                if (PageActual <= 1) //TODO : change it later
+                {
+                    // we recup items from the first three pages
+                    CreateNewBrowser();
+                }
+                else
+                {
+                    UpdateDataFromDatabase();
+                }
+                
             }
-            
         }
+        #endregion WebBrowser Methods
+
+        #region Database Methods
+        private void UpdateDataFromDatabase()
+        {
+            using (SqlCommand command = new SqlCommand())
+            {
+                try
+                {
+                    command.Connection = DbConnection;
+                    
+                    foreach (Item item in ListItem)
+                    {
+                        byte[] blobItemImage = ConvertImageToByteArray(item.Img);
+                        int typeItem = TypeItemsDictionnary.FirstOrDefault(x => x.Value == item.TypeItem).Key;
+
+                        string itemData = string.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}", "@id" + item.Id, "@name" + item.Id, "@lvl" + item.Id, "@image" + item.Id, "@url" + item.Id, "@type" + item.Id, "@rarity" + item.Id);
+                        command.CommandText += string.Format("INSERT INTO Items (Id, name, level, image, url, idType, idRarity) VALUES ({0});", itemData);
+                        command.Parameters.AddWithValue("@id" + item.Id, item.Id);
+                        command.Parameters.AddWithValue("@name" + item.Id, item.Name);
+                        command.Parameters.AddWithValue("@lvl" + item.Id, item.Lvl);
+                        command.Parameters.AddWithValue("@image" + item.Id, blobItemImage);
+                        command.Parameters.AddWithValue("@url" + item.Id, item.Url);
+                        command.Parameters.AddWithValue("@type" + item.Id, typeItem);
+                        command.Parameters.AddWithValue("@rarity" + item.Id, item.Rarity);
+                        
+                    }
+                    command.ExecuteNonQuery();
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="img"></param>
+        /// <returns></returns>
+        private byte[] ConvertImageToByteArray(Image img)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                img.Save(ms, ImageFormat.Png);
+                byte[] byteArray = ms.ToArray();
+                return byteArray;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void CreateTypeItemsDictionnary()
+        {
+            using (SqlCommand command = new SqlCommand())
+            {
+                command.Connection = DbConnection;
+                command.CommandText = string.Format("SELECT * FROM Type_Items ORDER BY Id ASC");
+
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    TypeItemsDictionnary = new Dictionary<int, string>();
+                    while (reader.Read())
+                    {
+                        TypeItemsDictionnary.Add(reader.GetInt32(0), reader.GetString(1));
+                    }
+                }
+            }
+        }
+
+        #endregion DatabaseMethods
     }
 }
