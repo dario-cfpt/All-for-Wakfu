@@ -60,8 +60,10 @@ namespace All_for_Wakfu
 
         private void OpenConnection()
         {
-            string pathToDatabase = "C:\\Users\\GENGAD_INFO\\Desktop\\Informatique 2017-2018\\Atelier Application\\All for Wakfu\\All for Wakfu\\All for Wakfu\\AllForWakfuDB.mdf";
-            DbConnection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=" + pathToDatabase + ";Integrated Security=True") ; // TODO : change it later
+            string exePath = System.Reflection.Assembly.GetEntryAssembly().Location;
+            string currentDirectory = Path.GetDirectoryName(exePath);
+            string attachDbFilename = currentDirectory + @"\AllForWakfuDB.mdf";
+            DbConnection = new SqlConnection(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + attachDbFilename + ";Integrated Security=True") ;
             DbConnection.Open();
         }
 
@@ -210,7 +212,7 @@ namespace All_for_Wakfu
                 }
                 PageActual++;
                 e.Cancel = true;
-                if (PageActual <= 1) //TODO : change it later
+                if (PageActual <= 3) //TODO : change it later
                 {
                     // we recup items from the first three pages
                     CreateNewBrowser();

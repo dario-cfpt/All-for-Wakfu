@@ -46,9 +46,13 @@ namespace All_for_Wakfu
 
         private void FrmMain_Load(object sender, EventArgs e)
         {
-            // this is for the testing only !
-            Searcher.Encyclopedia.UpdateDB();
+            // Fill the datagridview with the items from the database
+            itemsTableAdapter.Fill(allForWakfuDBDataSet.Items);
         }
 
+        private void BtnUpdateDatabase_Click(object sender, EventArgs e)
+        {
+            Searcher.Encyclopedia.UpdateDB();
+        }
     }
 }

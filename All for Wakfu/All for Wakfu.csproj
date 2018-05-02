@@ -72,6 +72,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AllForWakfuDBDataSet.cs">
+      <DependentUpon>AllForWakfuDBDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="AllForWakfuDBDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AllForWakfuDBDataSet.xsd</DependentUpon>
+    </Compile>
     <Compile Include="Build.cs" />
     <Compile Include="BuildManager.cs" />
     <Compile Include="EncyclopediaDB.cs" />
@@ -97,6 +105,17 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="AllForWakfuDBDataSet.xsc">
+      <DependentUpon>AllForWakfuDBDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="AllForWakfuDBDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>AllForWakfuDBDataSet.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="AllForWakfuDBDataSet.xss">
+      <DependentUpon>AllForWakfuDBDataSet.xsd</DependentUpon>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
