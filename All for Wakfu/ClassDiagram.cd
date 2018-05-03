@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="All_for_Wakfu.Build">
+    <Position X="12.25" Y="4.75" Width="3" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>EBAAAAAAAAAACAggBAAACCAAABAAAAAAAAAAAQAAAAA=</HashCode>
+      <FileName>Build.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Items" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="All_for_Wakfu.BuildManager">
+    <Position X="12.5" Y="1.25" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <AssociationLine Name="Builds" Type="All_for_Wakfu.Build">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.123" Y="0.068" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="CurrentBuild" Type="All_for_Wakfu.Build">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-1.211" Y="0.089" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>EAAAIAACAAAACAAABAAAAAAAAQAAgAAAAAAAAAAAACA=</HashCode>
+      <FileName>BuildManager.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="CurrentBuild" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Builds" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="All_for_Wakfu.EncyclopediaDB">
+    <Position X="3.5" Y="4" Width="3.25" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AABIACAICAAAARhAAQACAUACiQAIhJARAAEIQIAFAAA=</HashCode>
+      <FileName>EncyclopediaDB.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="ListItem" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="All_for_Wakfu.Item">
+    <Position X="8.5" Y="4.5" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>ABACIAAQAAAAAAAgACBACAQAAAQAQAAAiAIAAwAAAAA=</HashCode>
+      <FileName>Item.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="All_for_Wakfu.Searcher">
+    <Position X="4.25" Y="1.5" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <AssociationLine Name="Encyclopedia" Type="All_for_Wakfu.EncyclopediaDB">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.048" Y="0.06" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>ABAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAA=</HashCode>
+      <FileName>Searcher.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Encyclopedia" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="All_for_Wakfu.FrmMain">
+    <Position X="8.5" Y="0.5" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAEABQACAiEABJBAAgCAAAgCAAAQAAEAAAAIgAgAGwA=</HashCode>
+      <FileName>FrmMain.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Builder" />
+      <Property Name="Searcher" />
+    </ShowAsAssociation>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

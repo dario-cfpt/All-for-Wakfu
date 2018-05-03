@@ -30,7 +30,6 @@
         {
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            this.web = new System.Windows.Forms.WebBrowser();
             this.BtnUpdateDatabase = new System.Windows.Forms.Button();
             this.DgvItems = new System.Windows.Forms.DataGridView();
             this.imageDataGridViewImageColumn = new System.Windows.Forms.DataGridViewImageColumn();
@@ -42,22 +41,15 @@
             this.allForWakfuDBDataSet = new All_for_Wakfu.AllForWakfuDBDataSet();
             this.itemsTableAdapter = new All_for_Wakfu.AllForWakfuDBDataSetTableAdapters.ItemsTableAdapter();
             this.label1 = new System.Windows.Forms.Label();
+            this.BtnDeleteDataItems = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.DgvItems)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.itemsBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.allForWakfuDBDataSet)).BeginInit();
             this.SuspendLayout();
             // 
-            // web
-            // 
-            this.web.Location = new System.Drawing.Point(12, 3);
-            this.web.MinimumSize = new System.Drawing.Size(20, 20);
-            this.web.Name = "web";
-            this.web.Size = new System.Drawing.Size(983, 648);
-            this.web.TabIndex = 0;
-            // 
             // BtnUpdateDatabase
             // 
-            this.BtnUpdateDatabase.Location = new System.Drawing.Point(12, 12);
+            this.BtnUpdateDatabase.Location = new System.Drawing.Point(12, 7);
             this.BtnUpdateDatabase.Name = "BtnUpdateDatabase";
             this.BtnUpdateDatabase.Size = new System.Drawing.Size(183, 23);
             this.BtnUpdateDatabase.TabIndex = 2;
@@ -148,21 +140,31 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(201, 17);
+            this.label1.Location = new System.Drawing.Point(396, 12);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(365, 13);
             this.label1.TabIndex = 3;
             this.label1.Text = "note : vous devez relancer l\'application pour voir les changements effectués";
+            // 
+            // BtnDeleteDataItems
+            // 
+            this.BtnDeleteDataItems.Location = new System.Drawing.Point(201, 7);
+            this.BtnDeleteDataItems.Name = "BtnDeleteDataItems";
+            this.BtnDeleteDataItems.Size = new System.Drawing.Size(189, 23);
+            this.BtnDeleteDataItems.TabIndex = 4;
+            this.BtnDeleteDataItems.Text = "Suppression des données de la base";
+            this.BtnDeleteDataItems.UseVisualStyleBackColor = true;
+            this.BtnDeleteDataItems.Click += new System.EventHandler(this.BtnDeleteDataItems_Click);
             // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1007, 663);
+            this.Controls.Add(this.BtnDeleteDataItems);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.BtnUpdateDatabase);
             this.Controls.Add(this.DgvItems);
-            this.Controls.Add(this.web);
             this.Name = "FrmMain";
             this.Text = "All for Wakfu";
             this.Load += new System.EventHandler(this.FrmMain_Load);
@@ -175,8 +177,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.WebBrowser web;
         private System.Windows.Forms.Button BtnUpdateDatabase;
         private System.Windows.Forms.DataGridView DgvItems;
         private AllForWakfuDBDataSet allForWakfuDBDataSet;
@@ -188,6 +188,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn rarityNameDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn typeNameDataGridViewTextBoxColumn;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button BtnDeleteDataItems;
     }
 }
 

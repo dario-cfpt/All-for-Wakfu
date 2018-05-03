@@ -52,7 +52,12 @@ namespace All_for_Wakfu
 
         private void BtnUpdateDatabase_Click(object sender, EventArgs e)
         {
-            Searcher.Encyclopedia.UpdateDB();
+            Searcher.Encyclopedia.StartUpdateDB();
+        }
+
+        private void BtnDeleteDataItems_Click(object sender, EventArgs e)
+        {
+            Searcher.Encyclopedia.DeleteAllItemsData();
         }
     }
 }

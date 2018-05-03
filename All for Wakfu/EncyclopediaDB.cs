@@ -40,7 +40,6 @@ namespace All_for_Wakfu
         #endregion className
 
         private WebBrowser _browser;
-        private string _browserDocumentText;
         private int _pageActual = 1;
         private List<Item> _listItem;
         private Dictionary<int, string> _typeItemsDictionnary;
@@ -53,11 +52,17 @@ namespace All_for_Wakfu
 
         public SqlConnection DbConnection { get => _dbConnection; set => _dbConnection = value; }
         public WebBrowser Browser { get => _browser; set => _browser = value; }
-        private string BrowserDocumentText { get => _browserDocumentText; set => _browserDocumentText = value; }
         private int PageActual { get => _pageActual; set => _pageActual = value; }
         private List<Item> ListItem { get => _listItem; set => _listItem = value; }
+        /// <summary>
+        /// Key = id of the type of item
+        /// <para>Value = the label of the type of item</para>
+        /// </summary>
         public Dictionary<int, string> TypeItemsDictionnary { get => _typeItemsDictionnary; set => _typeItemsDictionnary = value; }
 
+        /// <summary>
+        /// Open the SQL connection with the local SQLite database
+        /// </summary>
         private void OpenConnection()
         {
             string exePath = System.Reflection.Assembly.GetEntryAssembly().Location;
@@ -67,7 +72,10 @@ namespace All_for_Wakfu
             DbConnection.Open();
         }
 
-        public void UpdateDB()
+        /// <summary>
+        /// Start the update of the databse
+        /// </summary>
+        public void StartUpdateDB()
         {
             CreateTypeItemsDictionnary();
             CreateNewBrowser();
@@ -80,7 +88,6 @@ namespace All_for_Wakfu
         /// </summary>
         private void CreateNewBrowser()
         {
-            Browser = null; // TODO : verify if necessary
             Browser = new WebBrowser
             {
                 ScriptErrorsSuppressed = true,
@@ -89,144 +96,146 @@ namespace All_for_Wakfu
             Browser.Navigate(new Uri(ARMORS_URL + PageActual));
         }
 
+        /// <summary>
+        /// Recovers data of items from the siteweb when the WebBrowser is going to navigate to a new browser document.
+        /// </summary>
         private void Browser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
         {
-            BrowserDocumentText = Browser.DocumentText;
-
-            if (BrowserDocumentText != "")
+            if (Browser.DocumentText != "")
             {
                 var tableItems = Browser.Document.GetElementsByTagName("table");
 
-                foreach (HtmlElement table in tableItems)
+                if (tableItems.Count > 0 && PageActual <= 3) // we recup data from the 3 first page for the time being
                 {
-                    if (table.GetAttribute("className") == TABLE_DATA_CLASS_NAME)
+                    foreach (HtmlElement table in tableItems)
                     {
-                        // <table> who contains all items
-                        var trItems = table.GetElementsByTagName("tr");
-
-                        foreach (HtmlElement tr in trItems)
+                        if (table.GetAttribute("className") == TABLE_DATA_CLASS_NAME)
                         {
-                            if (tr.GetAttribute("className") == ITEM_CLASS_NAME_ODD || tr.GetAttribute("className") == ITEM_CLASS_NAME_EVEN)
-                            {
-                                // <tr> who contains stats from an item
-                                int idItem = -1;
-                                string nameItem = "";
-                                Image imgItem = null;
-                                string typeItem = "";
-                                int rarityItem = -1;
-                                int lvlItem = -1;
-                                string urlItem = "";
-                                Dictionary<string, int> statsItem = new Dictionary<string, int>();
-                                
-                                var spanTags = tr.GetElementsByTagName("span");
-                                var tdTags = tr.GetElementsByTagName("td");
-                                
-                                foreach (HtmlElement span in spanTags)
-                                {
-                                    try
-                                    {
-                                        // first child -> <a>, "second" child -> <img>
-                                        if (span.FirstChild.FirstChild.GetAttribute("alt") != "" && span.FirstChild.FirstChild != null)
-                                        {
-                                            // this span need to have two child (<a> & <img>) to get url, image and name of the item
-                                            nameItem = span.FirstChild.FirstChild.GetAttribute("alt");
-                                            urlItem = span.FirstChild.GetAttribute("href");
-                                            // the id is stocked like this : .../24120-nameItem, so we ned to split it
-                                            idItem = Convert.ToInt32(urlItem.Split('/').Last().Split('-').First());
+                            // <table> who contains all items
+                            var trItems = table.GetElementsByTagName("tr");
 
-                                            string urlImg = span.FirstChild.FirstChild.GetAttribute("src");
-                                            // Create an image from the url
-                                            using (WebClient wc = new WebClient())
+                            foreach (HtmlElement tr in trItems)
+                            {
+                                if (tr.GetAttribute("className") == ITEM_CLASS_NAME_ODD || tr.GetAttribute("className") == ITEM_CLASS_NAME_EVEN)
+                                {
+                                    // <tr> who contains stats from an item
+                                    int idItem = -1;
+                                    string nameItem = "";
+                                    Image imgItem = null;
+                                    string typeItem = "";
+                                    int rarityItem = -1;
+                                    int lvlItem = -1;
+                                    string urlItem = "";
+                                    Dictionary<string, int> statsItem = new Dictionary<string, int>();
+
+                                    var spanTags = tr.GetElementsByTagName("span");
+                                    var tdTags = tr.GetElementsByTagName("td");
+
+                                    foreach (HtmlElement span in spanTags)
+                                    {
+                                        try
+                                        {
+                                            // first child -> <a>, "second" child -> <img>
+                                            if (span.FirstChild.FirstChild.GetAttribute("alt") != "" && span.FirstChild.FirstChild != null)
                                             {
-                                                using (MemoryStream ms = new MemoryStream(wc.DownloadData(urlImg)))
+                                                // this span need to have two child (<a> & <img>) to get url, image and name of the item
+                                                nameItem = span.FirstChild.FirstChild.GetAttribute("alt");
+                                                urlItem = span.FirstChild.GetAttribute("href");
+                                                // the id is stocked like this : .../24120-nameItem, so we ned to split it
+                                                idItem = Convert.ToInt32(urlItem.Split('/').Last().Split('-').First());
+
+                                                string urlImg = span.FirstChild.FirstChild.GetAttribute("src");
+                                                // Create an image from the url
+                                                using (WebClient wc = new WebClient())
                                                 {
-                                                    imgItem = Image.FromStream(ms);
+                                                    using (MemoryStream ms = new MemoryStream(wc.DownloadData(urlImg)))
+                                                    {
+                                                        imgItem = Image.FromStream(ms);
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                                    catch (Exception)
-                                    {
-                                        // their is no "second" child, so we do nothing
-                                    }
-                                    
-                                    if (span.GetAttribute("className").Split(' ')[0] == ITEM_RARITY_CLASS_NAME) 
-                                    {
-                                        // the rarity is stocked like this : ak-icon-small ak-rarity-6, so we need to split it
-                                        rarityItem = Convert.ToInt32(span.GetAttribute("className").Split('-').Last());
-                                    }
-                                }
-
-                                foreach (HtmlElement td in tdTags)
-                                {
-                                    if (td.GetAttribute("className") == ITEM_TYPE_CLASS_NAME)
-                                    {
-                                        typeItem = td.FirstChild.GetAttribute("title");
-                                    }
-
-                                    if (td.GetAttribute("className") == ITEM_LVL_CLASS_NAME && td.InnerText != null)
-                                    {
-                                        // The lvl is stocked like this : Niv. 200, so we need this split it
-                                        lvlItem = Convert.ToInt32(td.InnerText.Split(' ').Last()); 
-                                    }
-
-                                    if (td.GetAttribute("className") == ITEM_ALL_CARACTERISTICS_CLASS_NAME)
-                                    {
-                                        foreach (HtmlElement div in td.GetElementsByTagName("div"))
+                                        catch (Exception)
                                         {
-                                            if (div.GetAttribute("className") == ITEM_CARACTERISTIC_CLASS_NAME)
+                                            // their is no "second" child, so we do nothing
+                                        }
+
+                                        if (span.GetAttribute("className").Split(' ')[0] == ITEM_RARITY_CLASS_NAME)
+                                        {
+                                            // the rarity is stocked like this : ak-icon-small ak-rarity-6, so we need to split it
+                                            rarityItem = Convert.ToInt32(span.GetAttribute("className").Split('-').Last());
+                                        }
+                                    }
+
+                                    foreach (HtmlElement td in tdTags)
+                                    {
+                                        if (td.GetAttribute("className") == ITEM_TYPE_CLASS_NAME)
+                                        {
+                                            typeItem = td.FirstChild.GetAttribute("title");
+                                        }
+
+                                        if (td.GetAttribute("className") == ITEM_LVL_CLASS_NAME && td.InnerText != null)
+                                        {
+                                            // The lvl is stocked like this : Niv. 200, so we need this split it
+                                            lvlItem = Convert.ToInt32(td.InnerText.Split(' ').Last());
+                                        }
+
+                                        if (td.GetAttribute("className") == ITEM_ALL_CARACTERISTICS_CLASS_NAME)
+                                        {
+                                            foreach (HtmlElement div in td.GetElementsByTagName("div"))
                                             {
-                                                foreach (HtmlElement divWithValue in div.GetElementsByTagName("div"))
+                                                if (div.GetAttribute("className") == ITEM_CARACTERISTIC_CLASS_NAME)
                                                 {
-                                                    if (divWithValue.GetAttribute("className") == ITEM_VALUE_CARACTERISTIC_CLASS_NAME)
+                                                    foreach (HtmlElement divWithValue in div.GetElementsByTagName("div"))
                                                     {
-                                                        string[] stats = divWithValue.InnerText.Replace("%", "").Trim().Split(' ');
-
-                                                        try
+                                                        if (divWithValue.GetAttribute("className") == ITEM_VALUE_CARACTERISTIC_CLASS_NAME)
                                                         {
-                                                            int valueStat = Convert.ToInt32(stats[0]);
-                                                            string typeStats = "";
+                                                            // we have to remplace to delete the char '%' and then trim the text of stats for spliting it correctly
+                                                            string[] stats = divWithValue.InnerText.Replace("%", "").Trim().Split(' ');
 
-                                                            for (int i = 1; i < stats.Count(); i++)
+                                                            try
                                                             {
-                                                                typeStats += stats[i] + " ";
+                                                                int valueStat = Convert.ToInt32(stats[0]);
+                                                                string typeStats = "";
+
+                                                                for (int i = 1; i < stats.Count(); i++)
+                                                                {
+                                                                    typeStats += stats[i] + " ";
+                                                                }
+                                                                statsItem.Add(typeStats.Trim(), valueStat);
                                                             }
-                                                            statsItem.Add(typeStats.Trim(), valueStat);
-                                                        }
-                                                        catch (Exception)
-                                                        {
-                                                            // An exception can occurs with special caracteristics
-                                                            statsItem.Add(divWithValue.InnerText.Trim(), -1);
+                                                            catch (Exception)
+                                                            {
+                                                                // An exception can occurs with special caracteristics
+                                                                statsItem.Add(divWithValue.InnerText.Trim(), -1);
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
                                         }
                                     }
+                                    ListItem.Add(new Item(idItem, nameItem, imgItem, typeItem, rarityItem, lvlItem, urlItem, statsItem));
                                 }
-                                ListItem.Add(new Item(idItem, nameItem, imgItem, typeItem, rarityItem, lvlItem, urlItem, statsItem));
                             }
                         }
                     }
-
-                }
-                PageActual++;
-                e.Cancel = true;
-                if (PageActual <= 3) //TODO : change it later
-                {
-                    // we recup items from the first three pages
-                    CreateNewBrowser();
+                    PageActual++;
+                    CreateNewBrowser(); // We have to create a new browser for navigating to the next page correctly
                 }
                 else
                 {
                     UpdateDataFromDatabase();
+                    e.Cancel = true;
                 }
-                
             }
         }
         #endregion WebBrowser Methods
 
         #region Database Methods
+        /// <summary>
+        /// Execute the queries for updating the database
+        /// </summary>
         private void UpdateDataFromDatabase()
         {
             using (SqlCommand command = new SqlCommand())
@@ -238,7 +247,7 @@ namespace All_for_Wakfu
                     foreach (Item item in ListItem)
                     {
                         byte[] blobItemImage = ConvertImageToByteArray(item.Img);
-                        int typeItem = TypeItemsDictionnary.FirstOrDefault(x => x.Value == item.TypeItem).Key;
+                        int typeItem = TypeItemsDictionnary.FirstOrDefault(x => x.Value == item.TypeItem).Key; // we need the id of the item type
 
                         string itemData = string.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}", "@id" + item.Id, "@name" + item.Id, "@lvl" + item.Id, "@image" + item.Id, "@url" + item.Id, "@type" + item.Id, "@rarity" + item.Id);
                         command.CommandText += string.Format("INSERT INTO Items (Id, name, level, image, url, idType, idRarity) VALUES ({0});", itemData);
@@ -249,24 +258,41 @@ namespace All_for_Wakfu
                         command.Parameters.AddWithValue("@url" + item.Id, item.Url);
                         command.Parameters.AddWithValue("@type" + item.Id, typeItem);
                         command.Parameters.AddWithValue("@rarity" + item.Id, item.Rarity);
-                        
                     }
                     command.ExecuteNonQuery();
-
+                    // TODO: Add stats of items to the table Stats and ITems_Have_Stats
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex);
                 }
-
+            }
+        }
+        /// <summary>
+        /// Delete the data of each items of the database
+        /// </summary>
+        public void DeleteAllItemsData()
+        {
+            using (SqlCommand command = new SqlCommand())
+            {
+                try
+                {
+                    command.Connection = DbConnection;
+                    command.CommandText = "DELETE FROM Items; DELETE FROM Items_Have_Stats; DELETE FROM Stats";
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
             }
         }
 
         /// <summary>
-        /// 
+        /// Convert an image to a byte array
         /// </summary>
-        /// <param name="img"></param>
-        /// <returns></returns>
+        /// <param name="img">The image to convert</param>
+        /// <returns>A byte array of the image</returns>
         private byte[] ConvertImageToByteArray(Image img)
         {
             using (MemoryStream ms = new MemoryStream())
@@ -278,7 +304,7 @@ namespace All_for_Wakfu
         }
 
         /// <summary>
-        /// 
+        /// Create the dictionnary of the differents type of items
         /// </summary>
         private void CreateTypeItemsDictionnary()
         {
